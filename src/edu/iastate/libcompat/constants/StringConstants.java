@@ -1,4 +1,4 @@
-package edu.iastate.libcompat;
+package edu.iastate.libcompat.constants;
 
 /**
  * Created by nishanthsivakumar on 3/2/16.
