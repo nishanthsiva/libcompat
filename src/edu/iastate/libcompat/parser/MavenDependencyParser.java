@@ -11,6 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
 import edu.iastate.libcompat.StringConstants;
+import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -78,39 +79,47 @@ public class MavenDependencyParser extends DependencyParser {
 
     }
 
-    private PackageBean getDependencyMetadata(Node dependencyTag){
+    private DependencyBean getDependencyMetadata(Node dependencyTag){
         final String METHOD_NAME = "getDependencyMetadata";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
+        DependencyBean dependencyBean = new DependencyBean();
         PackageBean packageBean = new PackageBean();
         NodeList childNodes = dependencyTag.getChildNodes();
+        boolean optionalFlag = false;
         for(int i=0;i<childNodes.getLength();i++){
-            if(childNodes.item(i).getNodeName() == StringConstants.MVN_TAG_NAME_ARTIFACT_ID)
-                packageBean.setName(childNodes.item(i).getTextContent());
-            if(childNodes.item(i).getNodeName() == StringConstants.MVN_TAG_NAME_VERSION)
-                packageBean.setVersion(childNodes.item(i).getTextContent());
-            if (packageBean.getName() != null && packageBean.getVersion() != null) break;
+            Node child = childNodes.item(i);
+            if(child.getNodeName() == StringConstants.MVN_TAG_NAME_ARTIFACT_ID)
+                packageBean.setName(child.getTextContent());
+            if(child.getNodeName() == StringConstants.MVN_TAG_NAME_VERSION)
+                packageBean.setVersion(child.getTextContent());
+            if(child.getNodeName() == StringConstants.MVN_TAG_NAME_OPTIONAL){
+                optionalFlag = Boolean.parseBoolean(child.getTextContent());
+            }
         }
+        dependencyBean.setPackageBean(packageBean);
+        dependencyBean.setOptional(optionalFlag);
+        dependencyBean.setType(1);
 
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
-        return packageBean;
+        return dependencyBean;
     }
 
-    private List<PackageBean> getDependencyList(Document document, PackageBean parentBean){
+    private List<DependencyBean> getDependencyList(Document document, PackageBean parentBean){
         final String METHOD_NAME = "getDependencyList";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
-        List<PackageBean> dependencyList = new ArrayList<>();
+        List<DependencyBean> dependencyList = new ArrayList<>();
         NodeList dependenciesTag = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_DEPENDENCIES);
         for(int i=0;i<dependenciesTag.getLength();i++) {
-            NodeList dependencyTags = dependenciesTag.item(i).getChildNodes();
-            for(int j=0; j< dependencyTags.getLength(); j++){
-                //check only for direct dependencies
-                //TODO Include profile dependencies
-                //TODO Include build dependencies
-                if(dependencyTags.item(j).getParentNode().getNodeName() == StringConstants.MVN_TAG_NAME_PARENT){
+            if(dependenciesTag.item(i).getParentNode().getNodeName() == StringConstants.MVN_TAG_NAME_PROJECT){
+                NodeList dependencyTags = dependenciesTag.item(i).getChildNodes();
+                for(int j=0; j< dependencyTags.getLength(); j++){
+                    //check only for direct dependencies
                     dependencyList.add(getDependencyMetadata(dependencyTags.item(j)));
                 }
             }
+            //TODO Include profile dependencies
+            //TODO Include build dependencies
 
         }
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
@@ -137,7 +146,9 @@ public class MavenDependencyParser extends DependencyParser {
                 PackageBean packageBean = new PackageBean();
                 populateParentMetadata(document, packageBean);
 
-                List<PackageBean> dependencyList = getDependencyList(document, packageBean);
+                List<DependencyBean> dependencyList = getDependencyList(document, packageBean);
+
+                //store the package and the dependency list
 
             }catch(Exception e){
                 //e.printStackTrace();
