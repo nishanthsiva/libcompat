@@ -42,7 +42,7 @@ public class FileFilter {
                 if(node.isDirectory()){
                     fileNames.addAll(getFiles(node.getAbsolutePath(), fileType));
                 }else{
-                    if(fileType != "*"){
+                    if(!fileType.equals("*")){
                         if(node.getName().endsWith(fileType)){
                             fileNames.add(node.getAbsolutePath());
                         }

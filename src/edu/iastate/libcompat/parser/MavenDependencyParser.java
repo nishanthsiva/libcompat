@@ -47,10 +47,10 @@ public class MavenDependencyParser extends DependencyParser {
                 Node parentTag = parentTags.item(0);
                 NodeList childNodes = parentTag.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
-                    if (childNodes.item(i).getNodeName() == StringConstants.MVN_TAG_NAME_ARTIFACT_ID) {
+                    if (childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_ARTIFACT_ID)) {
                         packageBean.setName(childNodes.item(i).getTextContent());
                     }
-                    if (childNodes.item(i).getNodeName() == StringConstants.MVN_TAG_NAME_VERSION) {
+                    if (childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_VERSION)) {
                         packageBean.setVersion(childNodes.item(i).getTextContent());
                     }
                     if (packageBean.getName() != null && packageBean.getVersion() != null) {
@@ -64,7 +64,7 @@ public class MavenDependencyParser extends DependencyParser {
                 Node projectTag = projectTags.item(0);
                 NodeList childNodes = projectTag.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
-                    if (childNodes.item(i).getNodeName() == StringConstants.MVN_TAG_NAME_NAME) {
+                    if (childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_NAME)) {
                         packageBean.setDescription(childNodes.item(i).getTextContent());
                         break;
                     }
@@ -88,11 +88,11 @@ public class MavenDependencyParser extends DependencyParser {
         boolean optionalFlag = false;
         for(int i=0;i<childNodes.getLength();i++){
             Node child = childNodes.item(i);
-            if(child.getNodeName() == StringConstants.MVN_TAG_NAME_ARTIFACT_ID)
+            if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_ARTIFACT_ID))
                 packageBean.setName(child.getTextContent());
-            if(child.getNodeName() == StringConstants.MVN_TAG_NAME_VERSION)
+            if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_VERSION))
                 packageBean.setVersion(child.getTextContent());
-            if(child.getNodeName() == StringConstants.MVN_TAG_NAME_OPTIONAL){
+            if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_OPTIONAL)){
                 optionalFlag = Boolean.parseBoolean(child.getTextContent());
             }
         }
@@ -111,7 +111,7 @@ public class MavenDependencyParser extends DependencyParser {
         List<DependencyBean> dependencyList = new ArrayList<>();
         NodeList dependenciesTag = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_DEPENDENCIES);
         for(int i=0;i<dependenciesTag.getLength();i++) {
-            if(dependenciesTag.item(i).getParentNode().getNodeName() == StringConstants.MVN_TAG_NAME_PROJECT){
+            if(dependenciesTag.item(i).getParentNode().getNodeName().equals(StringConstants.MVN_TAG_NAME_PROJECT)){
                 NodeList dependencyTags = dependenciesTag.item(i).getChildNodes();
                 for(int j=0; j< dependencyTags.getLength(); j++){
                     //check only for direct dependencies
@@ -136,8 +136,6 @@ public class MavenDependencyParser extends DependencyParser {
         boolean found = false;
         for(String fileName: files){
             LOGGER.log(Level.FINE, "Parsing File - "+fileName);
-            boolean dep1 = false;
-            boolean dep2 = false;
             try {
                 Document document = documentBuilder.parse(new File(fileName));
                 document.getDocumentElement().normalize();
