@@ -108,7 +108,7 @@ public class MavenDependencyParser extends DependencyParser {
         final String METHOD_NAME = "getDependencyList";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
-        List<DependencyBean> dependencyList = new ArrayList<>();
+        List<DependencyBean> dependencyList = new ArrayList<DependencyBean>();
         NodeList dependenciesTag = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_DEPENDENCIES);
         for(int i=0;i<dependenciesTag.getLength();i++) {
             if(dependenciesTag.item(i).getParentNode().getNodeName().equals(StringConstants.MVN_TAG_NAME_PROJECT)){
