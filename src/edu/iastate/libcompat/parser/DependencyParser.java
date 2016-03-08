@@ -29,7 +29,7 @@ public abstract class DependencyParser {
 
         String[] fileNames = null;
         try {
-            File file = new File("test.properties");
+            File file = new File("libcompat.properties");
             FileInputStream fileInput = new FileInputStream(file);
             Properties properties = new Properties();
             properties.load(fileInput);
