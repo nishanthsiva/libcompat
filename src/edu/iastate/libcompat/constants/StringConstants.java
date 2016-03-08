@@ -18,4 +18,7 @@ public class StringConstants {
     public static final String BWR_KEY_NAME_VERSION = "version";
     public static final String BWR_KEY_NAME_DEPENDENCIES = "dependencies";
 
+    public static final String GRD_BLK_NAME_DEPENDENCIES = "dependencies {";
+    public static final String GRD_BLK_NAME_DEPENDENCIES_2 = "dependencies{";
+
 }

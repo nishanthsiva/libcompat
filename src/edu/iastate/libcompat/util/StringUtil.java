@@ -45,4 +45,24 @@ public class StringUtil {
         return updatedVersion.toString();
     }
 
+    public static int getUnmatchedBracesCount(String line){
+        final String METHOD_NAME = "getBracesCount";
+        LOGGER.entering(CLASS_NAME, METHOD_NAME);
+
+        int bracesCount = 0;
+        for(int i=0;i<line.length();i++){
+            if(line.charAt(i) == '{')
+                bracesCount++;
+            if(line.charAt(i) == '}')
+                bracesCount--;
+        }
+
+        LOGGER.exiting(CLASS_NAME, METHOD_NAME);
+        return bracesCount;
+    }
+
+    public static void main(String args[]){
+        LOGGER.log(Level.INFO, getUnmatchedBracesCount("{{{{}}}")+"");
+    }
+
 }

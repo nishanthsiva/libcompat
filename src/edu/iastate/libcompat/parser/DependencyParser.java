@@ -7,8 +7,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 /**
  * Created by nishanthsivakumar on 2/29/16.
@@ -21,6 +24,7 @@ public abstract class DependencyParser {
 
     public DependencyParser(String fileType){
         this.fileType = fileType;
+        setLoggerLevel(LOGGER, Level.INFO);
     }
 
     public String[] getFilesByType(){
@@ -52,6 +56,24 @@ public abstract class DependencyParser {
 
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
         return fileNames;
+    }
+
+    public void setLoggerLevel(Logger LOGGER, Level level){
+
+        Handler[] handlers = LOGGER.getHandlers();
+        ConsoleHandler consoleHandler = null;
+        for(Handler handle: handlers){
+            if(handle instanceof ConsoleHandler){
+                consoleHandler = (ConsoleHandler) handle;
+            }
+        }
+        if(consoleHandler == null){
+            consoleHandler = new ConsoleHandler();
+        }
+        consoleHandler.setLevel(level);
+        LOGGER.addHandler(consoleHandler);
+        LOGGER.setLevel(level);
+
     }
 
     public abstract void parseFiles();

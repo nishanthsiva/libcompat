@@ -28,6 +28,7 @@ public class MavenDependencyParser extends DependencyParser {
 
     public MavenDependencyParser(){
         super("pom.xml");
+        super.setLoggerLevel(LOGGER, Level.INFO);
         documentBuilderFactory = DocumentBuilderFactory.newInstance();
         try{
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
