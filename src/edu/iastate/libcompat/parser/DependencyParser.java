@@ -2,6 +2,12 @@ package edu.iastate.libcompat.parser;
 
 import edu.iastate.libcompat.util.FileFilter;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -21,10 +27,31 @@ public abstract class DependencyParser {
         final String METHOD_NAME = "getFilesByType";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
-        FileFilter filter = new FileFilter("/Users/nishanthsivakumar/Documents/libcompat/project_repo/maven_projects/");
+        String[] fileNames = null;
+        try {
+            File file = new File("test.properties");
+            FileInputStream fileInput = new FileInputStream(file);
+            Properties properties = new Properties();
+            properties.load(fileInput);
+            fileInput.close();
+
+            StringBuffer repoPath = new StringBuffer();
+            repoPath.append(properties.getProperty(fileType,""));
+            FileFilter filter = new FileFilter(repoPath.toString());
+            fileNames = filter.filterByFiletype(this.fileType);
+
+        } catch (FileNotFoundException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage());
+            e.printStackTrace();
+        }
+
+
 
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
-        return filter.filterByFiletype(this.fileType);
+        return fileNames;
     }
 
     public abstract void parseFiles();

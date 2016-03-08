@@ -53,9 +53,9 @@ public class BowerDependencyParser extends DependencyParser {
 
                 List<DependencyBean> dependencyList = getDependencyList(jsonObject);
 
-                //store to database
+                LOGGER.log(Level.INFO,"Package - "+packageBean.getName()+"\nDependencies Found - "+dependencyList.size());
 
-                break;
+                //store to database
 
             }catch(Exception e){
                 LOGGER.log(Level.WARNING, e.getMessage());
