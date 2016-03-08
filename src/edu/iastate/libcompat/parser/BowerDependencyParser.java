@@ -4,6 +4,7 @@ package edu.iastate.libcompat.parser;
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
 import edu.iastate.libcompat.constants.StringConstants;
+import edu.iastate.libcompat.util.StringUtil;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -76,7 +77,7 @@ public class BowerDependencyParser extends DependencyParser {
                     String key = keyIterator.next();
                     PackageBean packageBean = new PackageBean();
                     packageBean.setName(key);
-                    packageBean.setVersion(dependencies.getString(key));
+                    packageBean.setVersion(StringUtil.upgradeVersionString(dependencies.getString(key)));
 
                     DependencyBean dependencyBean = new DependencyBean();
                     dependencyBean.setPackageBean(packageBean);
