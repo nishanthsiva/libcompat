@@ -36,12 +36,12 @@ public class MavenDependencyParser extends DependencyParser {
         }
     }
 
-    private void populateParentMetadata(Document document, PackageBean packageBean){
-        final String METHOD_NAME = "getDependencyMetadata";
+    private void populatePackageMetadata(Document document, PackageBean packageBean){
+        final String METHOD_NAME = "populatePackageMetadata";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
         try {
 
-            //save dependency name and version
+            //save package name and version
             NodeList parentTags = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_PARENT);
             if (parentTags.getLength() > 0 && parentTags.item(0).hasChildNodes()) {
                 Node parentTag = parentTags.item(0);
@@ -58,7 +58,7 @@ public class MavenDependencyParser extends DependencyParser {
                     }
                 }
             }
-            //save dependency description
+            //save package description
             NodeList projectTags = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_PROJECT);
             if (projectTags.getLength() > 0 && projectTags.item(0).hasChildNodes()) {
                 Node projectTag = projectTags.item(0);
@@ -133,7 +133,6 @@ public class MavenDependencyParser extends DependencyParser {
         LOGGER.setLevel(Level.FINEST);
         String[] files = getFilesByType();
 
-        boolean found = false;
         for(String fileName: files){
             LOGGER.log(Level.FINE, "Parsing File - "+fileName);
             try {
@@ -142,9 +141,11 @@ public class MavenDependencyParser extends DependencyParser {
                 LOGGER.log(Level.FINEST, "parsed successfully");
 
                 PackageBean packageBean = new PackageBean();
-                populateParentMetadata(document, packageBean);
+                populatePackageMetadata(document, packageBean);
 
                 List<DependencyBean> dependencyList = getDependencyList(document, packageBean);
+                if(packageBean.getName() != null)
+                    LOGGER.log(Level.INFO, "Package parsed - "+packageBean.getName()+"\nDependencies found - "+dependencyList.size());
 
                 //store the package and the dependency list
 

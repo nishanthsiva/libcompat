@@ -34,7 +34,7 @@ public class FileFilter {
         final String METHOD_NAME = "getFiles";
 
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
-        List<String> fileNames = new ArrayList<>();
+        List<String> fileNames = new ArrayList<String>();
 
         File dirNode = new File(directoryPath);
         if(dirNode.isDirectory()){
