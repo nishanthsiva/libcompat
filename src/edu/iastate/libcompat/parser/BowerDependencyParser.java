@@ -87,6 +87,8 @@ public class BowerDependencyParser extends DependencyParser {
             }
         }
 
+        //TODO parse devDependencies also
+
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
         return dependencyList;
     }
