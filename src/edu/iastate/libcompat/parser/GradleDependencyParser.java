@@ -60,8 +60,7 @@ public class GradleDependencyParser extends DependencyParser {
         int bracesCount = 0;
         while(bufferedReader.ready()){
             String line = bufferedReader.readLine();
-            if(line.toLowerCase().contains(StringConstants.GRD_BLK_NAME_DEPENDENCIES) ||
-                    line.toLowerCase().contains(StringConstants.GRD_BLK_NAME_DEPENDENCIES_2)){
+            if(line.toLowerCase().contains(StringConstants.GRD_BLK_NAME_DEPENDENCIES)){
                 LOGGER.log(Level.FINEST, "Dependency block found" );
                 dependencyBlock.append(line+"\n");
                 blockStartFound = true;
