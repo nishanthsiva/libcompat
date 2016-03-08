@@ -2,6 +2,7 @@ package edu.iastate.libcompat.util;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * Created by nishanthsivakumar on 3/7/16.
@@ -61,8 +62,44 @@ public class StringUtil {
         return bracesCount;
     }
 
-    public static void main(String args[]){
-        LOGGER.log(Level.INFO, getUnmatchedBracesCount("{{{{}}}")+"");
+   public static String getQuotedText(String line){
+       final String METHOD_NAME = "getQuotedText";
+       LOGGER.entering(CLASS_NAME, METHOD_NAME);
+
+       String quotedText = null;
+       int startIndex = -1;
+       int endIndex = -1;
+       if(line.contains("\'") ){
+           startIndex = line.indexOf("\'");
+           endIndex = line.lastIndexOf("\'");
+           if(startIndex != -1 && endIndex != -1){
+               if(startIndex != endIndex)
+                   quotedText = line.substring(startIndex+1,endIndex);
+           }
+
+       }else if(line.contains("\"")){
+           startIndex = line.indexOf("\"");
+           endIndex = line.lastIndexOf("\"");
+           if(startIndex != -1 && endIndex != -1){
+               if(startIndex != endIndex)
+                   quotedText = line.substring(startIndex+1,endIndex);
+           }
+       }
+       LOGGER.exiting(CLASS_NAME, METHOD_NAME);
+       return quotedText;
+   }
+
+    public static boolean isVersionString(String versionString){
+        final String METHOD_NAME = "isVersionString";
+        LOGGER.entering(CLASS_NAME, METHOD_NAME);
+
+        boolean isVersionString = false;
+        //TODO write proper regex for this check
+        if(Pattern.matches("[0-9].[0-9].[0-9]",versionString)){
+            isVersionString = true;
+        }
+        LOGGER.exiting(CLASS_NAME, METHOD_NAME);
+        return isVersionString;
     }
 
 }

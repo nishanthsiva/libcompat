@@ -1,9 +1,13 @@
 package edu.iastate.libcompat.parser;
 
+import edu.iastate.libcompat.beans.DependencyBean;
+import edu.iastate.libcompat.beans.PackageBean;
 import edu.iastate.libcompat.constants.StringConstants;
 import edu.iastate.libcompat.util.StringUtil;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -33,11 +37,24 @@ public class GradleDependencyParser extends DependencyParser {
         for(String filename: files){
             LOGGER.log(Level.FINE, "Parsing File - "+filename);
             try{
+                //
                 FileReader fileReader = new FileReader(new File(filename));
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
                 String dependencyBlock = getDependencyBlock(bufferedReader);
+                bufferedReader.close();
+                fileReader.close();
+                //TODO Find a way to extract package details
                 LOGGER.log(Level.FINER, "Dependency Block - \n"+dependencyBlock);
-
+                String[] depLines = dependencyBlock.split("\n");
+                List<String> dependencyStrings = new ArrayList<String>();
+                for(String dep : depLines){
+                    LOGGER.log(Level.FINEST,dep);
+                    dep = StringUtil.getQuotedText(dep);
+                    if(dep != null)
+                       dependencyStrings.add(dep);
+                }
+                List<DependencyBean> dependencyList  = getDependencyList(dependencyStrings);
+                //store dependencyList
 
             }catch(Exception e){
                 LOGGER.log(Level.WARNING, e.getMessage());
@@ -49,6 +66,36 @@ public class GradleDependencyParser extends DependencyParser {
 
 
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
+    }
+
+    private List<DependencyBean> getDependencyList(List<String> dependencyStrings) {
+        final String METHOD_NAME = "getDependencyList";
+        LOGGER.entering(CLASS_NAME,METHOD_NAME);
+
+        List<DependencyBean> dependencyList = new ArrayList<DependencyBean>();
+        for(String dep: dependencyStrings){
+            if(dep.contains(":")){
+                String[] tokens = dep.split(":");
+                if(tokens.length == 3){
+                    PackageBean packageBean = new PackageBean();
+                    packageBean.setName(tokens[1]);
+                    packageBean.setDescription(tokens[0]);
+                    /*if(StringUtil.isVersionString(tokens[2])){
+                        packageBean.setVersion(tokens[2]);
+                    }*/
+                    //TODO remove the comment line above and remove the line below
+                    packageBean.setVersion(tokens[2]);
+                    DependencyBean dependencyBean = new DependencyBean();
+                    dependencyBean.setPackageBean(packageBean);
+                    dependencyBean.setType(3);
+                    //TODO populate optional parameter for dependencyBean
+                    dependencyList.add(dependencyBean);
+                }
+            }
+        }
+        LOGGER.exiting(CLASS_NAME, METHOD_NAME);
+        return dependencyList;
+
     }
 
     private String getDependencyBlock(BufferedReader bufferedReader) throws IOException {
