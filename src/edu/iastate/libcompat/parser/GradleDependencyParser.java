@@ -8,8 +8,6 @@ import edu.iastate.libcompat.util.StringUtil;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +20,7 @@ public class GradleDependencyParser extends DependencyParser {
 
     public GradleDependencyParser(){
         super("build.gradle");
-        super.setLoggerLevel(LOGGER, Level.FINE);
+        super.setLoggerLevel(LOGGER, Level.INFO);
 
     }
 
@@ -82,6 +80,7 @@ public class GradleDependencyParser extends DependencyParser {
                     packageBean.setDescription(tokens[0]);
                     /*if(StringUtil.isVersionString(tokens[2])){
                         packageBean.setVersion(tokens[2]);
+                        //TODO Try to replace variables with $ with the actual version number
                     }*/
                     //TODO remove the comment line above and remove the line below
                     packageBean.setVersion(tokens[2]);

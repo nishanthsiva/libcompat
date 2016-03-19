@@ -20,4 +20,8 @@ public class StringConstants {
 
     public static final String GRD_BLK_NAME_DEPENDENCIES = "dependencies {";
 
+    public static final String BREW_KEYWORD_DEPENDS_ON = "depends_on";
+    public static final String BREW_KEYWORD_URL = "url";
+    public static final String BREW_KEYWORD_DESC = "desc";
+    public static final String BREW_KEYWORD_OPTIONAL = ":optional";
 }
