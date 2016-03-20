@@ -61,7 +61,6 @@ public class DatabaseUtility {
                     Node dependencyNode = fetchOrCreatePackageNode(dependencyBean.getPackageBean());
                     if(dependencyNode != null){
                         packageNode.createRelationshipTo(dependencyNode, DependencyType.DEPENDS_ON);
-                        packageNode.
                     }
 
                 }
