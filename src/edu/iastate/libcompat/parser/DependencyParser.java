@@ -1,6 +1,7 @@
 package edu.iastate.libcompat.parser;
 
 import edu.iastate.libcompat.util.FileFilter;
+import edu.iastate.libcompat.util.LoggingUtility;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -60,19 +61,7 @@ public abstract class DependencyParser {
 
     public void setLoggerLevel(Logger LOGGER, Level level){
 
-        Handler[] handlers = LOGGER.getHandlers();
-        ConsoleHandler consoleHandler = null;
-        for(Handler handle: handlers){
-            if(handle instanceof ConsoleHandler){
-                consoleHandler = (ConsoleHandler) handle;
-            }
-        }
-        if(consoleHandler == null){
-            consoleHandler = new ConsoleHandler();
-        }
-        consoleHandler.setLevel(level);
-        LOGGER.addHandler(consoleHandler);
-        LOGGER.setLevel(level);
+        LoggingUtility.setLoggerLevel(LOGGER,level);
 
     }
 

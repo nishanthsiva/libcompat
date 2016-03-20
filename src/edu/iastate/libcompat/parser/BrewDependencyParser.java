@@ -3,6 +3,7 @@ package edu.iastate.libcompat.parser;
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
 import edu.iastate.libcompat.constants.StringConstants;
+import edu.iastate.libcompat.util.DatabaseUtility;
 import edu.iastate.libcompat.util.StringUtil;
 
 import java.io.BufferedReader;
@@ -35,7 +36,7 @@ public class BrewDependencyParser extends DependencyParser {
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
         String[] files = getFilesByType();
-
+        int i = 0;
         for(String filename: files) {
             LOGGER.log(Level.FINE, "Parsing File - " + filename);
             try {
@@ -64,6 +65,7 @@ public class BrewDependencyParser extends DependencyParser {
                 populatePackageDetails(packageBean, StringUtil.getQuotedText(urlLine));
                 LOGGER.log(Level.FINE, "Package Version -"+packageBean.getVersion());
                 List<DependencyBean> dependencyList = getDependencyList(dependencyLines);
+                DatabaseUtility.addPackageDependency(packageBean,dependencyList);
 
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, e.getMessage());
