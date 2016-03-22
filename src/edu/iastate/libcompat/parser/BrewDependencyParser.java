@@ -65,6 +65,7 @@ public class BrewDependencyParser extends DependencyParser {
                 populatePackageDetails(packageBean, StringUtil.getQuotedText(urlLine));
                 LOGGER.log(Level.FINE, "Package Version -"+packageBean.getVersion());
                 List<DependencyBean> dependencyList = getDependencyList(dependencyLines);
+
                 DatabaseUtility.addPackageDependency(packageBean,dependencyList);
 
             } catch (Exception e) {

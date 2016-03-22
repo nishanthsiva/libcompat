@@ -5,12 +5,10 @@ import edu.iastate.libcompat.beans.PackageBean;
 import edu.iastate.libcompat.constants.DependencyLabels;
 import edu.iastate.libcompat.constants.DependencyType;
 import edu.iastate.libcompat.constants.StringConstants;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
+import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,9 +25,9 @@ public class DatabaseUtility {
     private static final String DB_PATH = "/Users/nishanthsivakumar/Documents/Neo4j/libcompat.graphdb";
 
     static{
-        graphDb = new GraphDatabaseFactory().newEmbeddedDatabase( DB_PATH );
+        graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(new File(DB_PATH));
         registerShutdownHook( graphDb );
-        LoggingUtility.setLoggerLevel(LOGGER,Level.FINER);
+        LoggingUtility.setLoggerLevel(LOGGER,Level.FINEST);
     }
 
     private static void registerShutdownHook( final GraphDatabaseService graphDb )
@@ -47,6 +45,26 @@ public class DatabaseUtility {
         } );
     }
 
+    private static Relationship getExistingRelationship(Node packageNode, Node dependencyNode){
+        final String METHOD_NAME = "getExistingRelationship";
+        LOGGER.entering(CLASS_NAME, METHOD_NAME);
+
+
+        Relationship existingRel = null;
+        if(packageNode != null && dependencyNode != null){
+            for(Relationship relationship: packageNode.getRelationships()) {
+                if(relationship.getId() == dependencyNode.getId()){
+
+                    existingRel = relationship;
+                    break;
+                }
+            }
+        }
+
+        LOGGER.exiting(CLASS_NAME,METHOD_NAME);
+        return existingRel;
+    }
+
     public static void addPackageDependency(PackageBean packageBean, List<DependencyBean> dependencyList){
         final String METHOD_NAME = "addPackageDependency";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
@@ -60,11 +78,24 @@ public class DatabaseUtility {
                 for(DependencyBean dependencyBean : dependencyList){
                     Node dependencyNode = fetchOrCreatePackageNode(dependencyBean.getPackageBean());
                     if(dependencyNode != null){
-                        packageNode.createRelationshipTo(dependencyNode, DependencyType.DEPENDS_ON);
+                        Relationship existingRel = getExistingRelationship(packageNode, dependencyNode);
+                        if(existingRel != null){
+                            if(existingRel.hasProperty(StringConstants.DB_PROPERTY_FREQ)){
+                                int freq = (int) existingRel.getProperty(StringConstants.DB_PROPERTY_FREQ);
+                                existingRel.setProperty(StringConstants.DB_PROPERTY_FREQ,freq+1);
+                            }else{
+                                existingRel.setProperty(StringConstants.DB_PROPERTY_FREQ,1);
+                            }
+                        }else{
+                            Relationship newRel = packageNode.createRelationshipTo(dependencyNode, DependencyType.DEPENDS_ON);
+                            newRel.setProperty(StringConstants.DB_PROPERTY_FREQ,1);
+                        }
+
+
                     }
 
                 }
-                //TODO for each dependency add compatible with relationship with every other dependency
+                addCompatibleRelationships(dependencyList);
             }
 
             tx.success();
@@ -74,6 +105,14 @@ public class DatabaseUtility {
             e.printStackTrace();
         }
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
+    }
+
+    private static void addCompatibleRelationships(List<DependencyBean> dependencyList) {
+        final String METHOD_NAME = "addCompatibleRelationships";
+        LOGGER.entering(CLASS_NAME,METHOD_NAME);
+
+        //TODO for each dependency add compatible with relationship with every other dependency
+        LOGGER.exiting(CLASS_NAME,METHOD_NAME);
     }
 
     private static Node fetchOrCreatePackageNode(PackageBean packageBean){

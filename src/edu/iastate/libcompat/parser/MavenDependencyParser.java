@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import edu.iastate.libcompat.constants.StringConstants;
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
+import edu.iastate.libcompat.util.DatabaseUtility;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -133,7 +134,6 @@ public class MavenDependencyParser extends DependencyParser {
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
         LOGGER.setLevel(Level.FINEST);
         String[] files = getFilesByType();
-
         for(String fileName: files){
             LOGGER.log(Level.FINE, "Parsing File - "+fileName);
             try {
@@ -145,10 +145,12 @@ public class MavenDependencyParser extends DependencyParser {
                 populatePackageMetadata(document, packageBean);
 
                 List<DependencyBean> dependencyList = getDependencyList(document, packageBean);
-                if(packageBean.getName() != null)
+                if(packageBean.getName() != null){
                     LOGGER.log(Level.INFO, "Package parsed - "+packageBean.getName()+"\nDependencies found - "+dependencyList.size());
+                    //store the package and the dependency list
+                    DatabaseUtility.addPackageDependency(packageBean,dependencyList);
+                }
 
-                //store the package and the dependency list
 
             }catch(Exception e){
                 //e.printStackTrace();
