@@ -12,6 +12,8 @@ public class StringConstants {
     public static final String MVN_TAG_NAME_PROJECT = "project";
     public static final String MVN_TAG_NAME_NAME = "name";
     public static final String MVN_TAG_NAME_OPTIONAL = "optional";
+    public static final String MVN_TAG_NAME_DESCRIPTION = "description";
+    public static final String MVN_CONST_PROJECT_VERSION = "${project.version}";
 
     public static final String BWR_KEY_NAME_NAME = "name";
     public static final String BWR_KEY_NAME_DESCRIPTION = "description";
@@ -31,4 +33,6 @@ public class StringConstants {
     public static final String DB_LABEL_PACKAGE = "package";
     public static final String DB_LABEL_DEPENDENCY = "dependency";
     public static final String DB_PROPERTY_FREQ = "frequency";
+
+
 }

@@ -83,7 +83,7 @@ public class GradleDependencyParser extends DependencyParser {
                         //TODO Try to replace variables with $ with the actual version number
                     }*/
                     //TODO remove the comment line above and remove the line below
-                    packageBean.setVersion(tokens[2]);
+                    packageBean.setVersion(StringUtil.getVersionString(tokens[2]));
                     DependencyBean dependencyBean = new DependencyBean();
                     dependencyBean.setPackageBean(packageBean);
                     dependencyBean.setType(3);

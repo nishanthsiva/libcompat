@@ -33,7 +33,7 @@ public class DocumentationDependencyParser extends DependencyParser {
             try {
                 fileReader = new FileReader(file);
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
-                
+
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, e.getMessage());
                 e.printStackTrace();

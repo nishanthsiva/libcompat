@@ -4,6 +4,7 @@ package edu.iastate.libcompat.parser;
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
 import edu.iastate.libcompat.constants.StringConstants;
+import edu.iastate.libcompat.util.DatabaseUtility;
 import edu.iastate.libcompat.util.StringUtil;
 import org.json.JSONObject;
 
@@ -57,6 +58,7 @@ public class BowerDependencyParser extends DependencyParser {
                 LOGGER.log(Level.FINE,"Package - "+packageBean.getName()+"\nDependencies Found - "+dependencyList.size());
 
                 //store to database
+                DatabaseUtility.addPackageDependency(packageBean,dependencyList);
 
             }catch(Exception e){
                 LOGGER.log(Level.WARNING, e.getMessage());
@@ -78,7 +80,7 @@ public class BowerDependencyParser extends DependencyParser {
                     String key = keyIterator.next();
                     PackageBean packageBean = new PackageBean();
                     packageBean.setName(key);
-                    packageBean.setVersion(StringUtil.upgradeVersionString(dependencies.getString(key)));
+                    packageBean.setVersion(StringUtil.getVersionString(StringUtil.upgradeVersionString(dependencies.getString(key))));
 
                     DependencyBean dependencyBean = new DependencyBean();
                     dependencyBean.setPackageBean(packageBean);
@@ -102,7 +104,7 @@ public class BowerDependencyParser extends DependencyParser {
         if(jsonObject.has(StringConstants.BWR_KEY_NAME_DESCRIPTION))
             packageBean.setDescription(jsonObject.getString(StringConstants.BWR_KEY_NAME_DESCRIPTION));
         if(jsonObject.has(StringConstants.BWR_KEY_NAME_VERSION))
-            packageBean.setVersion(jsonObject.getString(StringConstants.BWR_KEY_NAME_VERSION));
+            packageBean.setVersion(StringUtil.getVersionString(jsonObject.getString(StringConstants.BWR_KEY_NAME_VERSION)));
 
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
     }

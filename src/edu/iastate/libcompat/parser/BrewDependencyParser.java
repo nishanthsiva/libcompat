@@ -92,7 +92,7 @@ public class BrewDependencyParser extends DependencyParser {
                 LOGGER.log(Level.FINE, "Dependency name - "+tokens[1]);
                 for(String token: tokens){
                     if(token.contains("[0-9].")){
-                        packageBean.setVersion(token);
+                        packageBean.setVersion(StringUtil.getVersionString(token));
                         LOGGER.log(Level.FINE, "Dependency version -"+token);
                     }
                     if(token.contains(StringConstants.BREW_KEYWORD_OPTIONAL)){
@@ -121,7 +121,7 @@ public class BrewDependencyParser extends DependencyParser {
                 versionString = versionString.replaceFirst(packageBean.getName(),"");
                 versionString = versionString.replaceFirst("-","");
 
-                packageBean.setVersion(getVersionString(versionString));
+                packageBean.setVersion(StringUtil.getVersionString(getVersionString(versionString)));
                 LOGGER.log(Level.FINER, "Package version parse - "+versionString);
             }catch(MalformedURLException e){
                 LOGGER.log(Level.WARNING, e.getMessage());

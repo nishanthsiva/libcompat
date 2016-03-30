@@ -14,6 +14,7 @@ import edu.iastate.libcompat.constants.StringConstants;
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
 import edu.iastate.libcompat.util.DatabaseUtility;
+import edu.iastate.libcompat.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -44,7 +45,7 @@ public class MavenDependencyParser extends DependencyParser {
         try {
 
             //save package name and version
-            NodeList parentTags = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_PARENT);
+           /* NodeList parentTags = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_PARENT);
             if (parentTags.getLength() > 0 && parentTags.item(0).hasChildNodes()) {
                 Node parentTag = parentTags.item(0);
                 NodeList childNodes = parentTag.getChildNodes();
@@ -59,21 +60,30 @@ public class MavenDependencyParser extends DependencyParser {
                         break;
                     }
                 }
-            }
+            }*/
             //save package description
             NodeList projectTags = document.getElementsByTagName(StringConstants.MVN_TAG_NAME_PROJECT);
             if (projectTags.getLength() > 0 && projectTags.item(0).hasChildNodes()) {
                 Node projectTag = projectTags.item(0);
                 NodeList childNodes = projectTag.getChildNodes();
                 for (int i = 0; i < childNodes.getLength(); i++) {
-                    if (childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_NAME)) {
+                    if (childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_ARTIFACT_ID)) {
+                        packageBean.setName(childNodes.item(i).getTextContent());
+                    }
+                    if(childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_DESCRIPTION)){
                         packageBean.setDescription(childNodes.item(i).getTextContent());
+                    }
+                    if(childNodes.item(i).getNodeName().equals(StringConstants.MVN_TAG_NAME_VERSION)){
+                        packageBean.setVersion(StringUtil.getVersionString(childNodes.item(i).getTextContent()));
+                    }
+                    if (packageBean.getName() != null && packageBean.getVersion() != null && packageBean.getDescription() != null) {
                         break;
                     }
+
                 }
             }
         }catch(Exception e){
-            //e.printStackTrace();
+            e.printStackTrace();
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
 
@@ -81,7 +91,7 @@ public class MavenDependencyParser extends DependencyParser {
 
     }
 
-    private DependencyBean getDependencyMetadata(Node dependencyTag){
+    private DependencyBean getDependencyMetadata(Node dependencyTag, PackageBean parentBean,Document document){
         final String METHOD_NAME = "getDependencyMetadata";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
         DependencyBean dependencyBean = new DependencyBean();
@@ -92,8 +102,19 @@ public class MavenDependencyParser extends DependencyParser {
             Node child = childNodes.item(i);
             if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_ARTIFACT_ID))
                 packageBean.setName(child.getTextContent());
-            if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_VERSION))
-                packageBean.setVersion(child.getTextContent());
+            if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_VERSION)) {
+                packageBean.setVersion(StringUtil.getVersionString(child.getTextContent()));
+                if (packageBean.getVersion().equals(StringConstants.MVN_CONST_PROJECT_VERSION)) {
+                    packageBean.setVersion(parentBean.getVersion());
+                }else if(packageBean.getVersion().startsWith("${")){
+                    String tagName = packageBean.getVersion().replace("${|}","");
+                    Node tag = document.getElementsByTagName(tagName).item(0);
+                    if(tag != null)
+                        packageBean.setVersion(StringUtil.getVersionString(tag.getTextContent()));
+                    else
+                        packageBean.setVersion(null);
+                }
+            }
             if(child.getNodeName().equals(StringConstants.MVN_TAG_NAME_OPTIONAL)){
                 optionalFlag = Boolean.parseBoolean(child.getTextContent());
             }
@@ -117,7 +138,7 @@ public class MavenDependencyParser extends DependencyParser {
                 NodeList dependencyTags = dependenciesTag.item(i).getChildNodes();
                 for(int j=0; j< dependencyTags.getLength(); j++){
                     //check only for direct dependencies
-                    dependencyList.add(getDependencyMetadata(dependencyTags.item(j)));
+                    dependencyList.add(getDependencyMetadata(dependencyTags.item(j),parentBean,document));
                 }
             }
             //TODO Include profile dependencies

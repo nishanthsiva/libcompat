@@ -2,6 +2,7 @@ package edu.iastate.libcompat.util;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -89,17 +90,24 @@ public class StringUtil {
        return quotedText;
    }
 
-    public static boolean isVersionString(String versionString){
+    public static String getVersionString(String versionString){
         final String METHOD_NAME = "isVersionString";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
-        boolean isVersionString = false;
+        String version = "";
         //TODO write proper regex for this check
-        if(Pattern.matches("[0-9].[0-9].[0-9]",versionString)){
-            isVersionString = true;
+        Pattern pattern = Pattern.compile("(\\.)?[0-9](\\.[0-9]|\\.x|\\+)?(\\.[0-9]|\\.x|\\+)?(\\+)?");
+        Matcher matcher = pattern.matcher(versionString);
+        while(matcher.find()){
+            version += matcher.group();
         }
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
-        return isVersionString;
+        return version;
     }
+
+     public static void main(String args[]){
+         System.out.println(StringUtil.getVersionString("ija1.x-SNAPSHOT"));
+         System.out.println("ijij1.1.1-SNAPSHOT".split("[0-9].[0-9].[0-9]"));
+     }
 
 }

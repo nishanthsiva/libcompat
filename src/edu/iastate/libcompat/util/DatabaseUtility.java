@@ -53,8 +53,7 @@ public class DatabaseUtility {
         Relationship existingRel = null;
         if(packageNode != null && dependencyNode != null){
             for(Relationship relationship: packageNode.getRelationships()) {
-                if(relationship.getId() == dependencyNode.getId()){
-
+                if(relationship.getEndNode().getId() == dependencyNode.getId()){
                     existingRel = relationship;
                     break;
                 }
