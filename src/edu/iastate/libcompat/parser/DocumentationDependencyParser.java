@@ -26,6 +26,8 @@ public class DocumentationDependencyParser extends DependencyParser {
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
         String[] filenames = getFilesByType();
+        LOGGER.log(Level.INFO,filenames.length+" Files found!");
+        int count = 0;
         for(String filename: filenames){
             StringBuffer bufLines = new StringBuffer();
             File file = new File(filename);
@@ -33,14 +35,26 @@ public class DocumentationDependencyParser extends DependencyParser {
             try {
                 fileReader = new FileReader(file);
                 BufferedReader bufferedReader = new BufferedReader(fileReader);
-
+                while(bufferedReader.ready()){
+                    String tempLine = bufferedReader.readLine();
+                    if(tempLine.toLowerCase().contains("incompatib") || tempLine.toLowerCase().contains("not compatib")){
+                        count++;
+                        break;
+                    }
+                }
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, e.getMessage());
                 e.printStackTrace();
             }
 
         }
+        LOGGER.log(Level.INFO,count+" Files have incompatibility information");
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
 
+    }
+
+    public static void main(String arg[]){
+        DependencyParser dependencyParser = new DocumentationDependencyParser();
+        dependencyParser.parseFiles();
     }
 }
