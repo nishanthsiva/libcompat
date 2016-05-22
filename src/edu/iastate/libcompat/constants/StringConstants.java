@@ -32,6 +32,9 @@ public class StringConstants {
     public static final String DB_PROPERTY_DESC = "desc";
     public static final String DB_LABEL_PACKAGE = "package";
     public static final String DB_LABEL_DEPENDENCY = "dependency";
+    public static final String DB_LABEL_BOWER = "Bower";
+    public static final String DB_LABEL_HOMEBREW = "Homebrew";
+    public static final String DB_LABEL_MAVEN = "Maven";
     public static final String DB_PROPERTY_FREQ = "frequency";
 
 

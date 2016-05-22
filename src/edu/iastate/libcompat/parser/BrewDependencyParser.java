@@ -2,6 +2,7 @@ package edu.iastate.libcompat.parser;
 
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
+import edu.iastate.libcompat.constants.NodeLabels;
 import edu.iastate.libcompat.constants.StringConstants;
 import edu.iastate.libcompat.util.DatabaseUtility;
 import edu.iastate.libcompat.util.StringUtil;
@@ -66,7 +67,7 @@ public class BrewDependencyParser extends DependencyParser {
                 LOGGER.log(Level.FINE, "Package Version -"+packageBean.getVersion());
                 List<DependencyBean> dependencyList = getDependencyList(dependencyLines);
 
-                DatabaseUtility.addPackageDependency(packageBean,dependencyList);
+                DatabaseUtility.addPackageDependency(packageBean,dependencyList, NodeLabels.brewLabel);
 
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, e.getMessage());

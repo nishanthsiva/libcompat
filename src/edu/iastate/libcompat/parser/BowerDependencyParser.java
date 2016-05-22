@@ -3,6 +3,7 @@ package edu.iastate.libcompat.parser;
 
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
+import edu.iastate.libcompat.constants.NodeLabels;
 import edu.iastate.libcompat.constants.StringConstants;
 import edu.iastate.libcompat.util.DatabaseUtility;
 import edu.iastate.libcompat.util.StringUtil;
@@ -37,7 +38,7 @@ public class BowerDependencyParser extends DependencyParser {
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
         LOGGER.setLevel(Level.FINEST);
         String[] files = getFilesByType();
-
+        int projectWithoutVersionCount = 0;
         for(String fileName: files){
             LOGGER.log(Level.FINE, "Parsing File - "+fileName);
             try {
@@ -52,19 +53,23 @@ public class BowerDependencyParser extends DependencyParser {
 
                 PackageBean packageBean = new PackageBean();
                 populatePackageMetadata(jsonObject, packageBean);
-
+                if(packageBean.getVersion() == null || packageBean.getVersion().trim()==""){
+                    projectWithoutVersionCount++;
+                }
                 List<DependencyBean> dependencyList = getDependencyList(jsonObject);
 
                 LOGGER.log(Level.FINE,"Package - "+packageBean.getName()+"\nDependencies Found - "+dependencyList.size());
 
                 //store to database
-                DatabaseUtility.addPackageDependency(packageBean,dependencyList);
+                DatabaseUtility.addPackageDependency(packageBean,dependencyList, NodeLabels.bowerLabel);
 
             }catch(Exception e){
                 LOGGER.log(Level.WARNING, e.getMessage());
                 e.printStackTrace();
             }
         }
+        LOGGER.log(Level.INFO, "Projects without version information - "+projectWithoutVersionCount);
+        LOGGER.exiting(CLASS_NAME,METHOD_NAME);
     }
 
     private List<DependencyBean> getDependencyList(JSONObject jsonObject) {

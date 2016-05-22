@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
+import edu.iastate.libcompat.constants.NodeLabels;
 import edu.iastate.libcompat.constants.StringConstants;
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
@@ -155,6 +156,7 @@ public class MavenDependencyParser extends DependencyParser {
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
         LOGGER.setLevel(Level.FINEST);
         String[] files = getFilesByType();
+        int projectWithoutVersionCount = 0;
         for(String fileName: files){
             LOGGER.log(Level.FINE, "Parsing File - "+fileName);
             try {
@@ -164,20 +166,23 @@ public class MavenDependencyParser extends DependencyParser {
 
                 PackageBean packageBean = new PackageBean();
                 populatePackageMetadata(document, packageBean);
-
+                if(packageBean.getVersion() == null || packageBean.getVersion().trim()==""){
+                    projectWithoutVersionCount++;
+                }
                 List<DependencyBean> dependencyList = getDependencyList(document, packageBean);
                 if(packageBean.getName() != null){
                     LOGGER.log(Level.INFO, "Package parsed - "+packageBean.getName()+"\nDependencies found - "+dependencyList.size());
                     //store the package and the dependency list
-                    DatabaseUtility.addPackageDependency(packageBean,dependencyList);
+                    DatabaseUtility.addPackageDependency(packageBean,dependencyList, NodeLabels.mavenLabel);
                 }
 
-
             }catch(Exception e){
-                //e.printStackTrace();
+                e.printStackTrace();
                 LOGGER.log(Level.SEVERE, e.getMessage());
             }
         }
+        LOGGER.log(Level.INFO, "Projects without version information - "+projectWithoutVersionCount);
+        LOGGER.exiting(CLASS_NAME,METHOD_NAME);
     }
 
     public static void main(String args[]){

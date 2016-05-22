@@ -2,7 +2,7 @@ package edu.iastate.libcompat.util;
 
 import edu.iastate.libcompat.beans.DependencyBean;
 import edu.iastate.libcompat.beans.PackageBean;
-import edu.iastate.libcompat.constants.DependencyLabels;
+import edu.iastate.libcompat.constants.NodeLabels;
 import edu.iastate.libcompat.constants.DependencyType;
 import edu.iastate.libcompat.constants.StringConstants;
 import org.neo4j.graphdb.*;
@@ -10,6 +10,8 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,12 +24,12 @@ public class DatabaseUtility {
     private static final String CLASS_NAME = DatabaseUtility.class.getName();
 
     private static GraphDatabaseService graphDb;
-    private static final String DB_PATH = "/Users/nishanthsivakumar/Documents/Neo4j/libcompat.graphdb";
+    private static final String DB_PATH = "/Users/nishanthsivakumar/Documents/Neo4j/libcompat_2.graphdb";
 
     static{
         graphDb = new GraphDatabaseFactory().newEmbeddedDatabase(new File(DB_PATH));
         registerShutdownHook( graphDb );
-        LoggingUtility.setLoggerLevel(LOGGER,Level.FINEST);
+        LoggingUtility.setLoggerLevel(LOGGER,Level.SEVERE);
     }
 
     private static void registerShutdownHook( final GraphDatabaseService graphDb )
@@ -43,6 +45,10 @@ public class DatabaseUtility {
                 graphDb.shutdown();
             }
         } );
+    }
+
+    public static GraphDatabaseService getGraphDBService(){
+        return graphDb;
     }
 
     private static Relationship getExistingRelationship(Node packageNode, Node dependencyNode){
@@ -64,19 +70,24 @@ public class DatabaseUtility {
         return existingRel;
     }
 
-    public static void addPackageDependency(PackageBean packageBean, List<DependencyBean> dependencyList){
+    public static void addPackageDependency(PackageBean packageBean, List<DependencyBean> dependencyList, Label sourceLabel){
         final String METHOD_NAME = "addPackageDependency";
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
+        LOGGER.log(Level.SEVERE,"Dependency Size before dupliucate removal "+dependencyList.size());
+        removeDuplicates(dependencyList);
+        LOGGER.log(Level.SEVERE,"Dependency Size after dupliucate removal "+dependencyList.size());
         try
         {
             Transaction tx = graphDb.beginTx();
             if(packageBean != null){
 
                 Node packageNode = fetchOrCreatePackageNode(packageBean);
+                packageNode.addLabel(sourceLabel);
                 for(DependencyBean dependencyBean : dependencyList){
                     Node dependencyNode = fetchOrCreatePackageNode(dependencyBean.getPackageBean());
                     if(dependencyNode != null){
+                        dependencyNode.addLabel(sourceLabel);
                         Relationship existingRel = getExistingRelationship(packageNode, dependencyNode);
                         if(existingRel != null){
                             if(existingRel.hasProperty(StringConstants.DB_PROPERTY_FREQ)){
@@ -89,8 +100,6 @@ public class DatabaseUtility {
                             Relationship newRel = packageNode.createRelationshipTo(dependencyNode, DependencyType.DEPENDS_ON);
                             newRel.setProperty(StringConstants.DB_PROPERTY_FREQ,1);
                         }
-
-
                     }
 
                 }
@@ -106,6 +115,13 @@ public class DatabaseUtility {
         LOGGER.exiting(CLASS_NAME, METHOD_NAME);
     }
 
+    private static void removeDuplicates(List<DependencyBean> dependencyList) {
+        Set<DependencyBean> dependencySet = new TreeSet<>();
+        dependencySet.addAll(dependencyList);
+        dependencyList.clear();
+        dependencyList.addAll(dependencySet);
+    }
+
     private static void addCompatibleRelationships(List<DependencyBean> dependencyList) {
         final String METHOD_NAME = "addCompatibleRelationships";
         LOGGER.entering(CLASS_NAME,METHOD_NAME);
@@ -119,7 +135,7 @@ public class DatabaseUtility {
         LOGGER.entering(CLASS_NAME, METHOD_NAME);
 
         Node packageNode = null;
-        ResourceIterator<Node> existingNodes = graphDb.findNodes(DependencyLabels.packageLabel,StringConstants.DB_PROPERTY_NAME,packageBean.getName());
+        ResourceIterator<Node> existingNodes = graphDb.findNodes(NodeLabels.packageLabel,StringConstants.DB_PROPERTY_NAME,packageBean.getName());
         while(existingNodes.hasNext()){
             Node temp = existingNodes.next();
             if(packageBean.getVersion() != null && temp.hasProperty(StringConstants.DB_PROPERTY_VERSION) &&
@@ -136,7 +152,7 @@ public class DatabaseUtility {
         if(packageNode == null){
             LOGGER.log(Level.FINER,"No existing nodes found");
             if(packageBean.getName() != null){
-                packageNode = graphDb.createNode(DependencyLabels.packageLabel);
+                packageNode = graphDb.createNode(NodeLabels.packageLabel);
                 packageNode.setProperty(StringConstants.DB_PROPERTY_NAME,packageBean.getName());
                 if(packageBean.getVersion() != null)
                     packageNode.setProperty(StringConstants.DB_PROPERTY_VERSION,packageBean.getVersion());
@@ -146,8 +162,8 @@ public class DatabaseUtility {
 
         }else{
             LOGGER.log(Level.FINER,"existing nodes found");
-            if(!packageNode.hasLabel(DependencyLabels.packageLabel)){
-                packageNode.addLabel(DependencyLabels.packageLabel);
+            if(!packageNode.hasLabel(NodeLabels.packageLabel)){
+                packageNode.addLabel(NodeLabels.packageLabel);
             }
             if(!packageNode.hasProperty(StringConstants.DB_PROPERTY_DESC) && packageBean.getDescription() != null){
                 packageNode.setProperty(StringConstants.DB_PROPERTY_DESC,packageBean.getDescription());
